@@ -15,7 +15,7 @@ if background_img:
     bg_url = f"""
     <style>
     .stApp {{
-        background-image: url('{background_img}');
+        background-image: url('https://i.pinimg.com/1200x/51/a4/82/51a4821b0ea7eb4dc6ae58a85a13839b.jpg');
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
@@ -26,7 +26,7 @@ if background_img:
 
 # ---------------------- HEADER ------------------------
 st.markdown(
-    "<h1 style='text-align:center; color:white;'>🚗 Car Issue Predictor</h1>",
+    "<h1 style='text-align:center; color:white;'>🚗 CAR ISSUE PREDICTOR </h1>",
     unsafe_allow_html=True
 )
 
@@ -57,7 +57,7 @@ if st.button("🔍 Predict Issue"):
         vect_text = vectorizer.transform([complaint])
         prediction = model.predict(vect_text)[0]
 
-        st.success(f"🚀 Predicted Issue: **{prediction}**")
+        st.success(f"🚀 PREDICTED ISSUE: **{prediction}**")
 
         st.balloons()
 
