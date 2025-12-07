@@ -15,7 +15,7 @@ if background_img:
     bg_url = f"""
     <style>
     .stApp {{
-        background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdtIMzY26NEOSlLmnXKVuVq9L5lQ8vSI0Maw&s');
+        background-image: url('D:\Enthiran\project_car\original-3b362f19987e09fbeb2b092dc029db17.gif');
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
