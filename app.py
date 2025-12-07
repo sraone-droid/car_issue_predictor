@@ -15,7 +15,7 @@ if background_img:
     bg_url = f"""
     <style>
     .stApp {{
-        background-image: url('https://mir-s3-cdn-cf.behance.net/project_modules/source/ff62f045885079.584030cf0ed03.gif');
+        background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdtIMzY26NEOSlLmnXKVuVq9L5lQ8vSI0Maw&s');
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
