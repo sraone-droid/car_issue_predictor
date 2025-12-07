@@ -15,7 +15,7 @@ if background_img:
     bg_url = f"""
     <style>
     .stApp {{
-        background-image: url('D:\Enthiran\project_car\original-3b362f19987e09fbeb2b092dc029db17.gif');
+        background-image: url('https://cdn.dribbble.com/userupload/22797976/file/original-3b362f19987e09fbeb2b092dc029db17.gif');
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
