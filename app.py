@@ -1,6 +1,7 @@
 import streamlit as st
 import joblib
 from PIL import Image
+import time
 
 # ---------------------- PAGE CONFIG ----------------------
 st.set_page_config(
@@ -26,7 +27,7 @@ if background_img:
 
 # ---------------------- HEADER ------------------------
 st.markdown(
-    "<h1 style='text-align:center; color:white;'>🚗 CAR ISSUE PREDICTOR </h1>",
+    "<h1 style='text-align:center; color:white;'>CAR ISSUE PREDICTOR </h1>",
     unsafe_allow_html=True
 )
 
@@ -54,13 +55,16 @@ if st.button("🔍 Predict Issue"):
     if complaint.strip() == "":
         st.warning("⚠️ Please type something!")
     else:
-        vect_text = vectorizer.transform([complaint])
-        prediction = model.predict(vect_text)[0]
+        # Spinner (spanner) animation
+        with st.spinner("🔧 Fixing... please wait"):
+            time.sleep(2)  # for effect
+            vect_text = vectorizer.transform([complaint])
+            prediction = model.predict(vect_text)[0]
 
         st.success(f"🚀 PREDICTED ISSUE: **{prediction}**")
 
-        st.balloons()
+        # Static spanner icon
+        st.markdown("<center><h2>🛠️</h2></center>", unsafe_allow_html=True)
 
 # ---------------------- FOOTER ----------------------
 st.markdown("<br><br><center>🔧 Powered by Machine Learning</center>", unsafe_allow_html=True)
-
