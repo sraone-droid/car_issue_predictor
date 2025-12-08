@@ -1,33 +1,26 @@
+# train.py
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
 import joblib
 
-# Load data
-df = pd.read_csv('car_complaints_10000.csv')
+df = pd.read_csv("car_complaints_10000.csv")  # or your dataset
+df.dropna(subset=["Complaint", "Problem"], inplace=True)
 
-# Rename columns
-df.rename(columns={"Complaint": "Complaint", "Problem": "Category"}, inplace=True)
+X = df["Complaint"]
+y = df["Problem"]
 
-# Drop empty
-df.dropna(subset=["Complaint", "Category"], inplace=True)
+vec = TfidfVectorizer(ngram_range=(1,2), min_df=2, stop_words='english')
+X_vec = vec.fit_transform(X)
 
-# Create TF-IDF vectorizer
-vectorizer = TfidfVectorizer(stop_words="english")
+Xtr, Xte, ytr, yte = train_test_split(X_vec, y, test_size=0.2, random_state=42)
 
-# Transform data
-X = vectorizer.fit_transform(df["Complaint"])
-y = df["Category"]
+model = LogisticRegression(max_iter=1000)
+model.fit(Xtr, ytr)
 
-# Train model
-model = MultinomialNB()
-model.fit(X, y)
+print("Train done. Example accuracy:", model.score(Xte, yte))
 
-# Save vectorizer + model
-joblib.dump(vectorizer, "vectorizer.pkl")
+joblib.dump(vec, "vectorizer.pkl")
 joblib.dump(model, "model.pkl")
-
-print("\nTraining complete!")
 print("Saved vectorizer.pkl and model.pkl")

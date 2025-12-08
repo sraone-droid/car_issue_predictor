@@ -1,96 +1,40 @@
+# app.py
 import streamlit as st
-import time
-from sentence_transformers import SentenceTransformer, util
-import torch
+import joblib
+import numpy as np
 
-# ---------------------- PAGE CONFIG ----------------------
-st.set_page_config(
-    page_title="Car Issue Predictor",
-    layout="centered",
-    initial_sidebar_state="collapsed"
-)
+st.set_page_config(page_title="Car Issue Predictor", layout="centered")
 
-# ---------------------- CUSTOM BG ------------------------
-background_img = "background.jpg"
-if background_img:
-    bg_url = """
-    <style>
-    .stApp {
-        background-image: url('https://cdn.dribbble.com/userupload/22797976/file/original-3b362f19987e09fbeb2b092dc029db17.gif');
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }
-    </style>
-    """
-    st.markdown(bg_url, unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center;'>🚗 Car Issue Predictor</h1>", unsafe_allow_html=True)
 
-# ---------------------- HEADER ------------------------
-st.markdown(
-    "<h1 style='text-align:center; color:white;'>CAR ISSUE PREDICTOR</h1>",
-    unsafe_allow_html=True
-)
+# load trained objects (must be present in repo)
+try:
+    vectorizer = joblib.load("vectorizer.pkl")
+    model = joblib.load("model.pkl")
+except Exception as e:
+    st.error("Model/vectorizer not found or failed to load. Run training locally and upload model.pkl & vectorizer.pkl.")
+    st.stop()
 
-# ---------------------- EMBEDDING MODEL ----------------------
-embedder = SentenceTransformer('all-MiniLM-L6-v2')
+complaint = st.text_area("Describe your car complaint:", height=140)
 
-# Known issue examples
-issue_examples = {
-    "Weak Battery": ["car not starting", "slow crank", "battery weak"],
-    "Radiator Problem": ["engine overheating", "coolant leak", "radiator issue"],
-    "Brake Issue": ["brake noise", "brakes not working", "vibration when braking"],
-    "Unbalanced Wheels": ["steering vibration", "wobbling", "wheel shaking"],
-    "Faulty Spark Plug": ["engine misfire", "jerking", "spark plug issue"]
-}
+THRESHOLD = 0.5  # adjust (0.4..0.7) depending on desired strictness
 
-# Pre-calc embeddings
-issue_embeddings = {
-    label: embedder.encode(examples) for label, examples in issue_examples.items()
-}
-
-# ---------------------- USER INPUT ----------------------
-complaint = st.text_area(
-    "Describe your car complaint:",
-    height=120,
-    placeholder="Example: Strange noise from engine..."
-)
-
-# Hide empty box
-st.markdown("<style> .css-1es6m3g {display:none;}</style>", unsafe_allow_html=True)
-
-# ---------------------- PREDICT FUNCTION ----------------------
-def predict_issue(text):
-    if len(text.strip()) < 4:
-        return "⚠️ Unable to predict (input too short)"
-
-    input_emb = embedder.encode(text)
-    best_label = None
-    best_score = 0
-
-    for label, example_embs in issue_embeddings.items():
-        similarity = util.cos_sim(torch.tensor(input_emb), torch.tensor(example_embs))
-        score = similarity.max().item()
-
-        if score > best_score:
-            best_score = score
-            best_label = label
-
-    if best_score < 0.45:  # confidence threshold
-        return "❓ Unknown / Cannot Predict"
-
-    return best_label
-
-# ---------------------- BUTTON ----------------------
-if st.button("🔍 Predict Issue"):
-    if complaint.strip() == "":
-        st.warning("⚠️ Please type something!")
+if st.button("Predict"):
+    if not complaint or len(complaint.strip().split()) < 2:
+        st.warning("Please write a longer complaint (2+ words).")
     else:
-        with st.spinner("🔧 Checking..."):
-            time.sleep(2)
-            result = predict_issue(complaint)
-
-        st.success(f"🚀 PREDICTED ISSUE: **{result}**")
-        st.markdown("<center><h2>🛠️</h2></center>", unsafe_allow_html=True)
-
-# ---------------------- FOOTER ----------------------
-st.markdown("<br><br><center>🔧 Powered by Machine Learning</center>", unsafe_allow_html=True)
+        x = vectorizer.transform([complaint])
+        # use predict_proba if available
+        if hasattr(model, "predict_proba"):
+            probs = model.predict_proba(x)[0]
+            idx = np.argmax(probs)
+            pred = model.classes_[idx]
+            conf = probs[idx]
+            if conf < THRESHOLD:
+                st.warning("❓ Unable to confidently predict. Please describe the issue more clearly.")
+            else:
+                st.success(f"🚀 Predicted Problem: **{pred}** (Confidence: {conf:.2f})")
+        else:
+            # fallback if model doesn't support probs
+            pred = model.predict(x)[0]
+            st.success(f"🚀 Predicted Problem: **{pred}**")
