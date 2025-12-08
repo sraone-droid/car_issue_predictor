@@ -1,6 +1,6 @@
 streamlit
+sentence-transformers
+torch
 joblib
 scikit-learn
 pandas
-numpy
-Pillow
